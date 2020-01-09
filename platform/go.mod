@@ -8,5 +8,4 @@ require (
 	github.com/TheMickeyMike/go-pkg/log v0.0.0-20200109193418-c12a6a020043
 	go.opencensus.io v0.22.2
 	go.uber.org/zap v1.13.0
-	go.zenithar.org/pkg/log v0.2.0
 )
