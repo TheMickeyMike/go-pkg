@@ -11,9 +11,9 @@ var (
 
 func initialize(instance *zap.Logger) {
 	if defaultLogger != nil {
-		defaultLogger.Debug("Replacing logger factory", zap.String("old", defaultLogger.Name()), zap.String("new", instance.Name()))
+		defaultLogger.Debug("Replacing logger factory")
 	} else {
-		instance.Debug("Initializing logger factory", zap.String("factory", instance.Name()))
+		instance.Debug("Initializing logger factory")
 	}
 	defaultLogger = instance
 }
