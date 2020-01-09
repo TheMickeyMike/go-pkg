@@ -6,11 +6,13 @@ import (
 	"net/http"
 
 	"contrib.go.opencensus.io/exporter/prometheus"
+	"github.com/TheMickeyMike/go-pkg/log"
 	"go.opencensus.io/stats/view"
+	"go.uber.org/zap"
 )
 
 // RegisterExporter adds prometheus exporter
-func RegisterExporter(log *log.Logger, conf Config, r *http.ServeMux) (func() error, error) {
+func RegisterExporter(conf Config, r *http.ServeMux) (func() error, error) {
 	// Start prometheus
 	if err := conf.Validate(); err != nil {
 		return nil, err
@@ -19,7 +21,7 @@ func RegisterExporter(log *log.Logger, conf Config, r *http.ServeMux) (func() er
 	exporter, err := prometheus.NewExporter(prometheus.Options{
 		Namespace: conf.Namespace,
 		OnError: func(err error) {
-			log.Printf("Error occured in Prometheus exporter", err)
+			log.Error("Error occured in Prometheus exporter", zap.Error(err))
 		},
 	})
 

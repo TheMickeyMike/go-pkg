@@ -5,11 +5,13 @@ import (
 	"log"
 
 	"contrib.go.opencensus.io/exporter/jaeger"
+	"github.com/TheMickeyMike/go-pkg/log"
 	"go.opencensus.io/trace"
+	"go.uber.org/zap"
 )
 
 // RegisterExporter add jaeger as trace exporter
-func RegisterExporter(log *log.Logger, conf Config) (func(), error) {
+func RegisterExporter(conf Config) (func(), error) {
 	// Validate config first
 	if err := conf.Validate(); err != nil {
 		return nil, err
@@ -20,7 +22,7 @@ func RegisterExporter(log *log.Logger, conf Config) (func(), error) {
 		CollectorEndpoint: conf.CollectorEndpoint,
 		AgentEndpoint:     conf.AgentEndpoint,
 		OnError: func(err error) {
-			log.Printf("Error occured in Jaeger exporter: %s", err)
+			log.Error("Error occured in Jaeger exporter", zap.Error(err))
 		},
 		Process: jaeger.Process{
 			ServiceName: conf.ServiceName,

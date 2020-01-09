@@ -10,11 +10,6 @@ var (
 )
 
 func initialize(instance *zap.Logger) {
-	if defaultLogger != nil {
-		defaultLogger.Debug("Replacing logger factory")
-	} else {
-		instance.Debug("Initializing logger factory")
-	}
 	defaultLogger = instance
 }
 
@@ -31,6 +26,11 @@ func Debug(msg string, fields ...zapcore.Field) {
 // Info logs an info msg with fields
 func Info(msg string, fields ...zapcore.Field) {
 	defaultLogger.Info(msg, fields...)
+}
+
+// Error logs an error msg with fields
+func Error(msg string, fields ...zapcore.Field) {
+	defaultLogger.Error(msg, fields...)
 }
 
 // Fatal logs a fatal error msg with fields

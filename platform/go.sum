@@ -6,6 +6,9 @@ contrib.go.opencensus.io/exporter/jaeger v0.2.0/go.mod h1:ukdzwIYYHgZ7QYtwVFQUji
 contrib.go.opencensus.io/exporter/prometheus v0.1.0 h1:SByaIoWwNgMdPSgl5sMqM2KDE5H/ukPWBRo314xiDvg=
 contrib.go.opencensus.io/exporter/prometheus v0.1.0/go.mod h1:cGFniUXGZlKRjzOyuZJ6mgB+PgBcCIa79kEKR8YCW+A=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/TheMickeyMike/go-pkg v0.0.0-20200109185428-84dcbb8b0ed4 h1:IGVNo23HTdmzEe1P15r5iM2bUVhiMkf0dmn8aptNRW8=
+github.com/TheMickeyMike/go-pkg/log v0.0.0-20200109185428-84dcbb8b0ed4 h1:7a5Ab80vN1HLpRYppkVZ31KmmYZqIiHqu1J9+l/RVfo=
+github.com/TheMickeyMike/go-pkg/log v0.0.0-20200109185428-84dcbb8b0ed4/go.mod h1:7kd9D048R2LoXgpR06pU/pgCd3Lzf9TjaGCTXDtt3Uk=
 github.com/TheZeroSlave/zapsentry v0.0.0-20180112122240-410ad1e37c78 h1:H/WbBfLO8qTa3RB6V0PS8akxGRtp1T9V5j6EZ/e5Ebk=
 github.com/TheZeroSlave/zapsentry v0.0.0-20180112122240-410ad1e37c78/go.mod h1:vgK+0r+tMTYBS5JfKpX/Czbam1kBxAU7aBKTr2yHMl0=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
