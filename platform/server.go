@@ -3,12 +3,12 @@ package platform
 import (
 	"net/http"
 
-	"log"
 	"os"
 
+	"go.uber.org/zap"
+	"github.com/TheMickeyMike/go-pkg/log"
 	"github.com/TheMickeyMike/go-pkg/platform/jaeger"
 	"github.com/TheMickeyMike/go-pkg/platform/prometheus"
-	"go.zenithar.org/pkg/log"
 )
 
 type Server struct {
@@ -29,19 +29,19 @@ type InstrumentationConfig struct {
 	} `json:"jaeger"`
 }
 
-func InstrumentationServer(log *log.Logger, cfg InstrumentationConfig) {
+func InstrumentationServer(cfg InstrumentationConfig) {
 	instrumentationRouter := http.NewServeMux()
 
 	if cfg.Prometheus.Enabled {
-		if _, err := prometheus.RegisterExporter(log, cfg.Prometheus.Config, instrumentationRouter); err != nil {
-			log.Fatal("Unable to register prometheus instrumentation", err)
+		if _, err := prometheus.RegisterExporter(cfg.Prometheus.Config, instrumentationRouter); err != nil {
+			log.Fatal("Unable to register prometheus instrumentation", zap.Error(err))
 		}
 	}
 
 	if cfg.Jaeger.Enabled {
-		cancelFunc, err := jaeger.RegisterExporter(log, cfg.Jaeger.Config)
+		cancelFunc, err := jaeger.RegisterExporter(cfg.Jaeger.Config)
 		if err != nil {
-			log.Fatal("Unable to register jaeger instrumentation", err)
+			log.Fatal("Unable to register jaeger instrumentation", zap.Error(err))
 		}
 		defer cancelFunc()
 	}
