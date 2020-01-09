@@ -2,7 +2,6 @@ package prometheus
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"contrib.go.opencensus.io/exporter/prometheus"

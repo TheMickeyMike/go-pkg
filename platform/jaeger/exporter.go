@@ -2,7 +2,6 @@ package jaeger
 
 import (
 	"fmt"
-	"log"
 
 	"contrib.go.opencensus.io/exporter/jaeger"
 	"github.com/TheMickeyMike/go-pkg/log"
