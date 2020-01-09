@@ -1,7 +1,7 @@
 package log
 
 import (
-	"context"
+	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -21,13 +21,13 @@ type Options struct {
 var DefaultOptions = &Options{
 	Debug:    false,
 	LogLevel: "info",
-	AppName:  "changeme",
-	AppID:    "changeme",
+	AppName:  "techno-app",
+	AppID:    "techno-app",
 	Version:  "0.0.1",
-	Revision: "123456789",
 }
 
-func Setup(ctx context.Context, opts Options) {
+// Setup the logger
+func Setup(opts Options) {
 
 	// Initialize logs
 	var config zap.Config
@@ -36,6 +36,7 @@ func Setup(ctx context.Context, opts Options) {
 		config = zap.NewDevelopmentConfig()
 		config.DisableCaller = true
 		config.DisableStacktrace = true
+		config.EncoderConfig.EncodeTime = syslogTimeEncoder
 	} else {
 		config = zap.NewProductionConfig()
 		config.DisableStacktrace = true
@@ -63,7 +64,6 @@ func Setup(ctx context.Context, opts Options) {
 	logger = logger.With(
 		zap.String("@appName", opts.AppName),
 		zap.String("@version", opts.Version),
-		zap.String("@revision", opts.Revision),
 		zap.String("@appID", opts.AppID),
 		zap.Namespace("@fields"),
 	)
@@ -73,4 +73,8 @@ func Setup(ctx context.Context, opts Options) {
 
 	// Override zap default logger
 	zap.ReplaceGlobals(logger)
+}
+
+func syslogTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+	enc.AppendString(t.Format("2006/01/02 15:04:05.999999"))
 }
