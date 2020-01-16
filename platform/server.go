@@ -1,24 +1,28 @@
 package platform
 
 import (
+	"context"
 	"net/http"
+	"time"
 
-	"os"
-
-	"go.uber.org/zap"
 	"github.com/TheMickeyMike/go-pkg/log"
 	"github.com/TheMickeyMike/go-pkg/platform/jaeger"
 	"github.com/TheMickeyMike/go-pkg/platform/prometheus"
+	"github.com/TheMickeyMike/go-pkg/platform/diagnostic"
+	"go.uber.org/zap"
 )
 
-type Server struct {
-	RuntimeError    chan<- error
-	Interrupt       <-chan os.Signal
-	Instrumentation InstrumentationConfig
+type instrumentation struct {
+	server       *http.Server
+	stopExporter func()
 }
 
 type InstrumentationConfig struct {
 	Addr       string `json:"addres"`
+	Diagnostic struct {
+		Enabled bool              `json:"enabled"`
+		Config  diagnostic.Config `json:"config"`
+	} `json:"diagnostic"`
 	Prometheus struct {
 		Enabled bool              `json:"enabled"`
 		Config  prometheus.Config `json:"config"`
@@ -29,28 +33,61 @@ type InstrumentationConfig struct {
 	} `json:"jaeger"`
 }
 
-func InstrumentationServer(cfg InstrumentationConfig) {
-	instrumentationRouter := http.NewServeMux()
+func NewInstrumentation(cfg InstrumentationConfig) *instrumentation {
+	var (
+		instrumentation instrumentation
+		err             error
+	)
+
+	router := http.NewServeMux()
+
+	if cfg.Diagnostic.Enabled {
+		err := diagnostic.Register(cfg.Diagnostic.Config, router)
+		if err != nil {
+			log.Fatal("Unable to register diagnostic instrumentation", zap.Error(err))
+		}
+	}
 
 	if cfg.Prometheus.Enabled {
-		if _, err := prometheus.RegisterExporter(cfg.Prometheus.Config, instrumentationRouter); err != nil {
+		if _, err = prometheus.RegisterExporter(cfg.Prometheus.Config, router); err != nil {
 			log.Fatal("Unable to register prometheus instrumentation", zap.Error(err))
 		}
 	}
 
 	if cfg.Jaeger.Enabled {
-		cancelFunc, err := jaeger.RegisterExporter(cfg.Jaeger.Config)
+		instrumentation.stopExporter, err = jaeger.RegisterExporter(cfg.Jaeger.Config)
 		if err != nil {
 			log.Fatal("Unable to register jaeger instrumentation", zap.Error(err))
 		}
-		defer cancelFunc()
 	}
 
-	instrumentationServer := &http.Server{
+	instrumentation.server = &http.Server{
 		Addr:    cfg.Addr,
-		Handler: instrumentationRouter,
+		Handler: router,
 	}
+
+	return &instrumentation
+
+}
+
+func (instrumentation *instrumentation) Run(ctx context.Context) <-chan error {
+	err := make(chan error, 1)
 	go func() {
-		_ = instrumentationServer.ListenAndServe()
+		for {
+			select {
+			case <-ctx.Done():
+				defer instrumentation.stopExporter()
+				shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+				defer cancel()
+				err := instrumentation.server.Shutdown(shutdownCtx)
+				if err != nil {
+					log.Fatal("Error raised while shutting down the server", zap.Error(err))
+				}
+				return
+			case err <- instrumentation.server.ListenAndServe():
+				return
+			}
+		}
 	}()
+	return err
 }
